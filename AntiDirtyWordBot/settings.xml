@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandsSettingsXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<BotCommandList>
+		<BotCommandXml Type="InlineKeyboards" Code="/start" Description="Вот, что я могу:">
+			<KeyboardButtonList>
+				<KeyboardItem>
+					<Keyboard>
+						<DisplayToUser>Проверить результаты тренировки бота</DisplayToUser>
+						<CallbackData>/predict</CallbackData>
+					</Keyboard>
+				</KeyboardItem>
+				<KeyboardItem>
+					<Keyboard>
+						<DisplayToUser>Тренировать бота</DisplayToUser>
+						<CallbackData>/train</CallbackData>
+					</Keyboard>
+				</KeyboardItem>
+			</KeyboardButtonList>
+		</BotCommandXml>
+		<BotCommandXml Type="InlineKeyboards" Code="/train" Description="Выберите из списка">
+			<KeyboardButtonList>
+				<KeyboardItem>
+					<Keyboard>
+						<DisplayToUser>Добавить мат</DisplayToUser>
+						<CallbackData>/addDirtyWord</CallbackData>
+					</Keyboard>
+					<Keyboard>
+						<DisplayToUser>Добавить исключение</DisplayToUser>
+						<CallbackData>/addExeptionWord</CallbackData>
+					</Keyboard>
+				</KeyboardItem>
+			</KeyboardButtonList>
+		</BotCommandXml>
+		<BotCommandXml Type="Message" Code="/predict" Description="Введите фразу"/>
+		<BotCommandXml Type="MessageWithResponse" Code="/addDirtyWord" Description="Напишите матное слово"/>
+		<BotCommandXml Type="MessageWithResponse" Code="/addExeptionWord" Description="Напишите слово-исключение"/>
+	</BotCommandList>
+</CommandsSettingsXml>
