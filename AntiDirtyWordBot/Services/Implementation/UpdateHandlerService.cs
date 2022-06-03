@@ -1,11 +1,8 @@
-﻿using System.Configuration;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Serialization;
 
-using AntiDirtyWordBot;
 using AntiDirtyWordBot.Common;
 using AntiDirtyWordBot.Configurations;
-using AntiDirtyWordBot.Services;
 
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -203,18 +200,14 @@ namespace AntiDirtyWordBot.Services.Implementation
             var inputStr = new StringBuilder();
             var phrase = PreparePhrase(originalText);
 
-            // Проходимся по всем словам.
             foreach (var word in _obsceneWordsOption?.ObsceneWords)
             {
-                // Разбиваем слово на части, и проходимся по ним.
                 for (int part = 0; part < phrase.Length; part++)
                 {
-                    // Вот сам наш фрагмент
                     inputStr.Clear();
                     inputStr.Append(phrase.AsSpan(part, phrase.Length - part > word.Length ? word.Length : phrase.Length - part));
                     var fragment = inputStr.ToString();
 
-                    // Если отличие этого фрагмента меньше или равно 25% этого слова, то считаем, что они равны.
                     var distance = ObsceneWordsInspector.GetDistance(fragment, word);
                     var normilize = word.Length <= 4 ? 1.0 : word.Length * 0.20;
 
@@ -247,16 +240,12 @@ namespace AntiDirtyWordBot.Services.Implementation
 
             foreach (var item in _obsceneWordsOption?.Alphabet)
             {
-                // Проходимся по каждой букве в значении словаря. То есть по вот этим спискам ['а', 'a', '@'].
                 foreach (var letter in item.Value)
                 {
-                    // Проходимся по каждой букве в нашей фразе.
                     foreach (var phr in inputStringBuilder.ToString().ToCharArray())
                     {
-                        // Если буква совпадает с буквой в нашем списке.
                         if (letter == phr.ToString())
                         {
-                            // Заменяем эту букву на ключ словаря.
                             inputStringBuilder.Replace(phr, item.Key);
                         }
                     }
