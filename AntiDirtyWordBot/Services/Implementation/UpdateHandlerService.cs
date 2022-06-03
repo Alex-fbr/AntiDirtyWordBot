@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 using System.Xml.Serialization;
 
 using AntiDirtyWordBot.Common;
@@ -20,7 +21,8 @@ namespace AntiDirtyWordBot.Services.Implementation
 {
     public class UpdateHandlerService : IUpdateHandlerService
     {
-        private const string Aswer = "Напишите матное слово";
+        private const string WriteDirtyWord = "Напишите матное слово";
+        private const string WriteExceptionWord = "Напишите слово-исключение";
 
         private readonly ILogger<Worker> _logger;
         private readonly ITelegramBotClient _botClient;
@@ -95,7 +97,7 @@ namespace AntiDirtyWordBot.Services.Implementation
             {
                 switch (message.ReplyToMessage.Text)
                 {
-                    case Aswer:
+                    case WriteDirtyWord:
                         var word = message.Text?.ToLower()?.Trim();
 
                         if (_obsceneWordsOption.ObsceneWords.Contains(word))
@@ -110,7 +112,47 @@ namespace AntiDirtyWordBot.Services.Implementation
                             };
                             var array = new JArray(words.ToArray());
                             AppSetting.AddOrUpdateAppSetting("ObsceneWordsOption:ObsceneWords", array);
-                            await SendTextMessage(message.Chat.Id, "Успешное сохранение", message.MessageId);
+                            await SendTextMessage(message.Chat.Id, "Успешное сохранение мата", message.MessageId);
+                        }
+
+                        return;
+
+                    case WriteExceptionWord:
+                        var except = message.Text?.ToLower()?.Trim();
+                        var (isMat, fragment, mat) = Check(except);
+
+                        if (isMat)
+                        {
+                            if (_obsceneWordsOption.ExceptionWords.Any(x => x.Key == mat)
+                                && _obsceneWordsOption.ExceptionWords.First(x => x.Key == mat).Value.Contains(except))
+                            {
+                                await SendTextMessage(message.Chat.Id, "Такое слово уже есть в словаре", message.MessageId);
+                                return;
+                            }
+
+                            List<Word> newExceptionWords = null;
+
+                            if (_obsceneWordsOption.ExceptionWords.Select(x => x.Key).Contains(mat))
+                            {
+                                newExceptionWords = new List<Word>(_obsceneWordsOption.ExceptionWords);
+                                newExceptionWords.FirstOrDefault(x => x.Key == mat)?.Value?.ToList()?.Add(except);
+                            }
+                            else
+                            {
+                                newExceptionWords = new List<Word>(_obsceneWordsOption.ExceptionWords)
+                                {
+                                    new Word() { Key = mat, Value = new List<string>() { except } }
+                                };
+                            }
+
+                            var array = new JArray();
+                            foreach (var exc in newExceptionWords)
+                            {
+                                array.Add(JToken.FromObject(new { Key = exc.Key, Value = new JArray(exc.Value) }));
+                            }
+
+                            AppSetting.AddOrUpdateAppSetting("ObsceneWordsOption:ExceptionWords", array);
+                            await SendTextMessage(message.Chat.Id, "Успешное сохранение исключения", message.MessageId);
                         }
 
                         return;
