@@ -349,5 +349,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-# mY
-AntiDirtyWordBot/appsettings.Development.json
+# AntiDirtyWordBot/appsettings.Development.json
