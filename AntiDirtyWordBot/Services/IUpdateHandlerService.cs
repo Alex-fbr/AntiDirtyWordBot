@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-using Telegram.Bot.Types;
+﻿using Telegram.Bot.Types;
 
 namespace AntiDirtyWordBot.Services
 {

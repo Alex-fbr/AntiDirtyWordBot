@@ -4,6 +4,7 @@
     {
         InlineKeyboards,
         Message,
-        MessageWithResponse
+        MessageWithResponse,
+        SendFile
     }
 }

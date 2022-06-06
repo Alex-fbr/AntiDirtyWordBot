@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Serialization;
 
 using AntiDirtyWordBot.Common;
@@ -13,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
 using static AntiDirtyWordBot.Common.CommandsSettingsXml;
@@ -28,6 +28,7 @@ namespace AntiDirtyWordBot.Services.Implementation
         private readonly ITelegramBotClient _botClient;
         private readonly CommandsSettingsXml _settings;
         private ObsceneWordsOption _obsceneWordsOption;
+        private long chatId;
 
         private readonly ReplyKeyboardMarkup replyStartMarkup = new(new KeyboardButton("/start"))
         {
@@ -85,6 +86,8 @@ namespace AntiDirtyWordBot.Services.Implementation
 
         async Task BotOnMessageReceived(Message message)
         {
+            chatId = message.Chat.Id;
+
             _logger.LogInformation("Recieve <--- {@message}", message);
 
             if (message.Type != MessageType.Text)
@@ -169,6 +172,7 @@ namespace AntiDirtyWordBot.Services.Implementation
                     CommandType.InlineKeyboards => InlineKeyboardsCommandHandler(message.Chat.Id, botCommand.KeyboardButtonList, botCommand.Description),
                     CommandType.Message => SendTextMessage(message.Chat.Id, botCommand.Description),
                     CommandType.MessageWithResponse => MessageWithResponseCommandHandler(message.Chat.Id, botCommand.Description),
+                    CommandType.SendFile => SendFile(message.Chat.Id, botCommand.Description),
                     _ => throw new NotImplementedException($"Странная команда {botCommand.Type}")
                 });
         }
@@ -188,6 +192,7 @@ namespace AntiDirtyWordBot.Services.Implementation
                 CommandType.InlineKeyboards => InlineKeyboardsCommandHandler(chatId, botCommand.KeyboardButtonList, botCommand.Description),
                 CommandType.Message => SendTextMessage(chatId, botCommand.Description),
                 CommandType.MessageWithResponse => MessageWithResponseCommandHandler(chatId, botCommand.Description),
+                CommandType.SendFile => SendFile(chatId, botCommand.Description),
                 _ => throw new NotImplementedException($"Странная команда {botCommand.Type}")
             });
         }
@@ -295,6 +300,17 @@ namespace AntiDirtyWordBot.Services.Implementation
             }
 
             return inputStringBuilder.ToString();
+        }
+
+        async Task SendFile(long chatId, string file)
+        {
+            await _botClient.SendChatActionAsync(chatId, ChatAction.UploadDocument);
+          
+            var filePath = Path.Combine(AppContext.BaseDirectory, file);
+            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
+
+            await _botClient.SendDocumentAsync(chatId: chatId, document: new InputOnlineFile(fileStream, fileName), caption: "Словари");
         }
     }
 }

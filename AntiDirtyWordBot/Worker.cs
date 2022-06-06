@@ -43,7 +43,6 @@ namespace AntiDirtyWordBot
                 }
             }
         }
-
         private void HandleError(Exception exception)
         {
             var errorMessage = exception switch

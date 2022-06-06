@@ -15,6 +15,12 @@
 						<CallbackData>/train</CallbackData>
 					</Keyboard>
 				</KeyboardItem>
+				<KeyboardItem>
+					<Keyboard>
+						<DisplayToUser>Скачать appsettings</DisplayToUser>
+						<CallbackData>/sendFile</CallbackData>
+					</Keyboard>
+				</KeyboardItem>
 			</KeyboardButtonList>
 		</BotCommandXml>
 		<BotCommandXml Type="InlineKeyboards" Code="/train" Description="Выберите из списка">
@@ -34,5 +40,6 @@
 		<BotCommandXml Type="Message" Code="/predict" Description="Введите фразу"/>
 		<BotCommandXml Type="MessageWithResponse" Code="/addDirtyWord" Description="Напишите матное слово"/>
 		<BotCommandXml Type="MessageWithResponse" Code="/addExeptionWord" Description="Напишите слово-исключение"/>
+		<BotCommandXml Type="SendFile" Code="/sendFile" Description="appsettings.json"/>
 	</BotCommandList>
 </CommandsSettingsXml>
